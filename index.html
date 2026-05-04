@@ -1,0 +1,552 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Trophy, Shield, Star, Medal, ChevronRight, Home, Brain, Zap, Target, BookOpen, Volume2, VolumeX, Sparkles, Smartphone, Monitor, LayoutGrid, ArrowRight, RotateCcw, List, Rocket, Cpu, Globe, Lock, Palette, Crown, Flame, Target as TargetIcon, Award } from 'lucide-react';
+
+const MISSION_DATA = {
+  tan_binh: {
+    1: [
+      { lesson: "Bài 1", question: "Máy tính giúp em tạo ra loại sản phẩm nào?", options: ["Sản phẩm số", "Sản phẩm thủ công", "Thức ăn", "Cây trồng"], correct: 0 },
+      { lesson: "Bài 1", question: "Đâu là một ví dụ về sản phẩm số?", options: ["Bài trình chiếu", "Chiếc bút bi", "Thước kẻ gỗ", "Vở bài tập"], correct: 0 },
+      { lesson: "Bài 2", question: "Để tìm kiếm thông tin trên web, em nhập từ khóa vào đâu?", options: ["Ô tìm kiếm", "Thanh trạng thái", "Nút đóng trình duyệt", "Màn hình desktop"], correct: 0 },
+      { lesson: "Bài 2", question: "Từ khóa là gì?", options: ["Từ hoặc cụm từ ngắn gọn về nội dung cần tìm", "Tên của máy tính", "Mật khẩu đăng nhập", "Địa chỉ nhà em"], correct: 0 },
+      { lesson: "Bài 2", question: "Nút lệnh nào dùng để quay lại trang web trước đó?", options: ["Back (Mũi tên trái)", "Forward (Mũi tên phải)", "Reload (Làm mới)", "Close (Đóng)"], correct: 0 },
+      { lesson: "Bài 1", question: "Lợi ích của sản phẩm số là gì?", options: ["Dễ dàng lưu trữ và chia sẻ", "Nặng và khó mang theo", "Chỉ xem được một lần", "Không thể chỉnh sửa"], correct: 0 }
+    ],
+    2: [
+      { lesson: "Bài 3", question: "Thành phần nào bắt buộc phải có để gửi thư điện tử?", options: ["Địa chỉ người nhận", "Máy in", "Giấy viết thư", "Bút mực"], correct: 0 },
+      { lesson: "Bài 3", question: "Địa chỉ thư điện tử nào sau đây là đúng cấu trúc?", options: ["tennguoidung@gmail.com", "tennguoidung.gmail.com", "tennguoidung#gmail.com", "tennguoidung@gmail"], correct: 0 },
+      { lesson: "Bài 4", question: "Bước đầu tiên khi giải quyết vấn đề là gì?", options: ["Xác định vấn đề", "Đưa ra kết quả ngay", "Đi ngủ", "Xóa dữ liệu"], correct: 0 },
+      { lesson: "Bài 4", question: "Tại sao cần thu thập thông tin khi giải quyết vấn đề?", options: ["Để hiểu rõ vấn đề hơn", "Để máy tính chạy nhanh hơn", "Để chơi game", "Để làm đầy bộ nhớ"], correct: 0 },
+      { lesson: "Bài 3", question: "Mật khẩu thư điện tử nên như thế nào?", options: ["Bao gồm chữ, số và ký tự đặc biệt", "Chỉ cần 1 chữ cái", "Dùng ngày sinh cho dễ nhớ", "Cho tất cả bạn bè biết"], correct: 0 },
+      { lesson: "Bài 4", question: "Sau khi có giải pháp, bước tiếp theo là gì?", options: ["Thực hiện giải pháp", "Quên vấn đề đi", "Làm lại từ đầu", "Không làm gì cả"], correct: 0 }
+    ],
+    3: [
+      { lesson: "Bài 5", question: "Thư mục dùng để làm gì?", options: ["Lưu trữ và phân loại tệp", "Trang trí máy tính", "Tăng tốc độ Internet", "Chơi game"], correct: 0 },
+      { lesson: "Bài 5", question: "Bi tượng của thư mục thường có màu gì?", options: ["Vàng", "Xanh lá", "Đỏ", "Đen"], correct: 0 },
+      { lesson: "Bài 6", question: "Hành động nào là tôn trọng bản quyền?", options: ["Trích dẫn nguồn", "Tự ý copy", "Xóa tên tác giả", "Thay tên mình vào"], correct: 0 },
+      { lesson: "Bài 6", question: "Tại sao không nên tải phần mềm vi phạm bản quyền?", options: ["Dễ bị nhiễm virus và mã độc", "Vì nó quá đắt", "Vì nó làm máy đẹp hơn", "Vì nó không có dung lượng"], correct: 0 },
+      { lesson: "Bài 5", question: "Thao tác nào dùng để đổi tên thư mục?", options: ["Rename", "Delete", "Copy", "Cut"], correct: 0 },
+      { lesson: "Bài 6", question: "Bản quyền số bảo vệ quyền lợi của ai?", options: ["Tác giả sản phẩm", "Người đi mượn", "Máy tính", "Nhà mạng"], correct: 0 }
+    ],
+    4: [
+      { lesson: "Bài 7", question: "Phím tắt Ctrl + B có tác dụng gì?", options: ["In đậm", "In nghiêng", "Gạch chân", "Lưu bài"], correct: 0 },
+      { lesson: "Bài 7", question: "Phím tắt nào dùng để Lưu văn bản?", options: ["Ctrl + S", "Ctrl + P", "Ctrl + C", "Ctrl + V"], correct: 0 },
+      { lesson: "Bài 8", question: "Để căn chữ vào giữa dòng, em chọn nút nào?", options: ["Center", "Align Left", "Align Right", "Justify"], correct: 0 },
+      { lesson: "Bài 8", question: "Để chèn thêm bảng vào văn bản, em chọn thẻ nào?", options: ["Insert", "Home", "Layout", "View"], correct: 0 },
+      { lesson: "Bài 7", question: "Phím tắt Ctrl + U có tác dụng gì?", options: ["Gạch chân", "In đậm", "In nghiêng", "Xóa văn bản"], correct: 0 },
+      { lesson: "Bài 8", question: "Nút lệnh 'Bullet' dùng để làm gì?", options: ["Tạo danh sách ký hiệu đầu dòng", "Đổi màu chữ", "Căn lề trái", "Chèn ảnh"], correct: 0 }
+    ],
+    5: [
+      { lesson: "Bài 10", question: "Cấu trúc tuần tự là thực hiện lệnh như thế nào?", options: ["Thứ tự từ trên xuống", "Ngẫu nhiên", "Từ dưới lên", "Lặp lại mãi mãi"], correct: 0 },
+      { lesson: "Bài 15", question: "Biến trong Scratch dùng để làm gì?", options: ["Lưu trữ giá trị", "Đổi màu nhân vật", "Phát âm thanh", "Ẩn nhân vật"], correct: 0 },
+      { lesson: "Bài 10", question: "Trong Scratch, khối lệnh 'Move 10 steps' thuộc nhóm nào?", options: ["Motion", "Looks", "Sound", "Events"], correct: 0 },
+      { lesson: "Bài 15", question: "Để tăng biến 'Điểm' lên 1, em dùng lệnh nào?", options: ["change [Điểm] by 1", "set [Điểm] to 1", "show variable [Điểm]", "hide variable [Điểm]"], correct: 0 },
+      { lesson: "Bài 10", question: "Khối lệnh nào bắt đầu chương trình?", options: ["When green flag clicked", "Move 10 steps", "Say Hello", "Wait 1 seconds"], correct: 0 },
+      { lesson: "Bài 15", question: "Biến có thể thay đổi giá trị trong khi chạy không?", options: ["Có", "Không", "Chỉ thay đổi được 1 lần", "Chỉ thay đổi được ở cuối"], correct: 0 }
+    ]
+  },
+  chien_binh: {
+    1: [
+        { lesson: "Bài 1", question: "Sản phẩm số nào dưới đây giúp học tập trực tuyến?", options: ["Video bài giảng", "Sách giáo khoa giấy", "Bảng đen", "Phấn viết"], correct: 0 },
+        { lesson: "Bài 1", question: "Thiết bị nào sau đây dùng để tạo ra hình ảnh số?", options: ["Máy ảnh kỹ thuật số", "Bút chì", "Cục tẩy", "Thước kẻ"], correct: 0 },
+        { lesson: "Bài 2", question: "Khi tìm kiếm, nếu nhận được quá nhiều kết quả không liên quan, em nên?", options: ["Thêm từ khóa cụ thể hơn", "Xóa hết từ khóa", "Tắt máy tính", "Chờ đợi"], correct: 0 },
+        { lesson: "Bài 2", question: "Đâu là một trình duyệt web phổ biến?", options: ["Google Chrome", "Microsoft Word", "Scratch", "Excel"], correct: 0 },
+        { lesson: "Bài 1", question: "Để bảo vệ sản phẩm số của mình, em nên?", options: ["Đặt mật khẩu", "Chia sẻ công khai cho mọi người", "Không lưu trữ", "Xóa đi"], correct: 0 },
+        { lesson: "Bài 2", question: "Địa chỉ trang web thường bắt đầu bằng cụm từ nào?", options: ["http:// hoặc https://", "www.", "com.", "mail."], correct: 0 }
+    ],
+    2: [
+        { lesson: "Bài 3", question: "Tệp đính kèm trong email thường có biểu tượng hình gì?", options: ["Cái kẹp giấy", "Hình lá thư", "Hình ngôi sao", "Hình điện thoại"], correct: 0 },
+        { lesson: "Bài 3", question: "Thư mục 'Spam' hoặc 'Thư rác' chứa loại thư nào?", options: ["Thư quảng cáo hoặc không an toàn", "Thư quan trọng từ thầy cô", "Thư của bạn thân", "Thư em đã gửi"], correct: 0 },
+        { lesson: "Bài 4", question: "Thông tin tin cậy thường đến từ đâu?", options: ["Nguồn chính thống, có tên tác giả", "Tin đồn trên mạng xã hội", "Trang web không rõ nguồn gốc", "Lời nói truyền miệng"], correct: 0 },
+        { lesson: "Bài 4", question: "Kiểm tra nhiều nguồn tin khác nhau giúp em?", options: ["Xác nhận độ chính xác của thông tin", "Làm mất thời gian", "Lấy thêm nhiều tin sai", "Làm máy tính chậm"], correct: 0 },
+        { lesson: "Bài 3", question: "Lợi ích lớn nhất của thư điện tử là?", options: ["Gửi đi nhanh chóng và miễn phí", "Cần phải ra bưu điện", "Chỉ gửi được văn bản ngắn", "Không gửi được tệp"], correct: 0 },
+        { lesson: "Bài 4", question: "Một thông tin có hình ảnh minh họa đẹp có chắc chắn là tin đúng không?", options: ["Không chắc chắn, cần kiểm tra nội dung", "Chắc chắn đúng", "Chắc chắn sai", "Hình đẹp là tin tốt"], correct: 0 }
+    ],
+    3: [
+        { lesson: "Bài 5", question: "Thao tác Copy thư mục sẽ tạo ra kết quả gì?", options: ["Thêm một bản sao nữa", "Mất thư mục gốc", "Đổi tên thư mục", "Xóa thư mục"], correct: 0 },
+        { lesson: "Bài 5", question: "Phím tắt để dán (Paste) một tệp là gì?", options: ["Ctrl + V", "Ctrl + C", "Ctrl + X", "Ctrl + Z"], correct: 0 },
+        { lesson: "Bài 6", question: "Phần mềm miễn phí khác phần mềm có phí ở điểm nào?", options: ["Không cần trả tiền để sử dụng", "Không cần cài đặt", "Luôn tốt hơn phần mềm có phí", "Không có chức năng"], correct: 0 },
+        { lesson: "Bài 6", question: "Sử dụng phần mềm 'lậu' (không bản quyền) có thể dẫn đến hậu quả gì?", options: ["Vi phạm pháp luật và mất an toàn dữ liệu", "Máy tính chạy nhanh hơn", "Được tác giả khen ngợi", "Tiết kiệm tiền mà không có rủi ro"], correct: 0 },
+        { lesson: "Bài 5", question: "Để xóa vĩnh viễn một tệp (không vào thùng rác), ta dùng?", options: ["Shift + Delete", "Delete", "Ctrl + X", "Backspace"], correct: 0 },
+        { lesson: "Bài 6", question: "Ký hiệu © thường đại diện cho điều gì?", options: ["Bản quyền (Copyright)", "Công ty (Company)", "Máy tính (Computer)", "Sáng tạo (Create)"], correct: 0 }
+    ],
+    4: [
+        { lesson: "Bài 9", question: "Sản phẩm đa phương tiện là sự kết hợp của?", options: ["Văn bản, âm thanh, hình ảnh, video", "Chỉ có văn bản", "Chỉ có âm thanh", "Chỉ có hình ảnh"], correct: 0 },
+        { lesson: "Bài 9", question: "Phần mềm nào sau đây hỗ trợ tạo bài trình chiếu đa phương tiện?", options: ["Microsoft PowerPoint", "Notepad", "Calculator", "Paint"], correct: 0 },
+        { lesson: "Bài 11", question: "Vòng lặp giúp giảm bớt việc gì?", options: ["Viết đi viết lại lệnh giống nhau", "Tăng tốc độ xử lý của CPU", "Xóa bớt nhân vật", "Đổi màu sân khấu nhanh hơn"], correct: 0 },
+        { lesson: "Bài 11", question: "Trong Scratch, khối lệnh 'Repeat 10' là loại vòng lặp gì?", options: ["Lặp với số lần biết trước", "Lặp mãi mãi", "Lặp đến khi thỏa mãn điều kiện", "Không phải vòng lặp"], correct: 0 },
+        { lesson: "Bài 9", question: "Lợi ích của đa phương tiện trong giáo dục là gì?", options: ["Giúp bài học sinh động và dễ hiểu", "Làm học sinh mất tập trung", "Tốn nhiều điện hơn", "Không có lợi ích"], correct: 0 },
+        { lesson: "Bài 11", question: "Để nhân vật đi hình vuông, ta cần lặp lại lệnh di chuyển và xoay bao nhiêu lần?", options: ["4 lần", "3 lần", "5 lần", "6 lần"], correct: 0 }
+    ],
+    5: [
+        { lesson: "Bài 14", question: "Cấu trúc 'Nếu... thì' được dùng khi nào?", options: ["Cần kiểm tra một điều kiện", "Muốn lặp lại lệnh", "Muốn kết thúc game", "Muốn di chuyển"], correct: 0 },
+        { lesson: "Bài 14", question: "Điều kiện trong cấu trúc rẽ nhánh trả về kết quả gì?", options: ["Đúng hoặc Sai", "Một con số", "Một màu sắc", "Một âm thanh"], correct: 0 },
+        { lesson: "Bài 16", question: "Bước kiểm thử kịch bản có mục đích gì?", options: ["Tìm và sửa lỗi (Debug)", "Vẽ thêm hình cho đẹp", "Thay đổi âm thanh nền", "Chia sẻ với bạn bè"], correct: 0 },
+        { lesson: "Bài 16", question: "Khi phát hiện lỗi trong chương trình, em nên làm gì?", options: ["Tìm nguyên nhân và sửa lại khối lệnh", "Xóa toàn bộ chương trình", "Tắt máy tính", "Kệ nó"], correct: 0 },
+        { lesson: "Bài 14", question: "Trong Scratch, khối lệnh 'If <touching color ?> then' nằm trong nhóm?", options: ["Control", "Sensing", "Motion", "Looks"], correct: 0 },
+        { lesson: "Bài 16", question: "Để chương trình chạy đúng ý muốn, ta cần?", options: ["Lập kế hoạch và kiểm thử kỹ", "Viết code thật nhanh", "Dùng thật nhiều biến", "Không cần kiểm tra"], correct: 0 }
+    ]
+  },
+  huyen_thoai: {
+    1: [
+        { lesson: "Bài 2", question: "Tại sao không nên tin vào mọi thông tin trên mạng?", options: ["Vì ai cũng có thể đăng tin sai", "Vì mạng luôn bị hỏng", "Vì thông tin cũ", "Vì mạng không có ảnh"], correct: 0 },
+        { lesson: "Bài 4", question: "Quy trình xử lý thông tin của máy tính gồm?", options: ["Nhận -> Xử lý -> Lưu trữ -> Xuất", "Xóa -> Lưu", "Chụp ảnh -> Vẽ", "Đọc -> Quên"], correct: 0 },
+        { lesson: "Bài 2", question: "Dấu hiệu của một trang web lừa đảo thường là?", options: ["Yêu cầu cung cấp thông tin cá nhân/mật khẩu", "Có nhiều hình ảnh đẹp", "Có nội dung học tập", "Có địa chỉ rõ ràng"], correct: 0 },
+        { lesson: "Bài 4", question: "Bộ não của con người thực hiện bước nào trong xử lý thông tin?", options: ["Tất cả các bước", "Chỉ xử lý", "Chỉ lưu trữ", "Chỉ nhận tin"], correct: 0 },
+        { lesson: "Bài 2", question: "Công cụ tìm kiếm hoạt động dựa trên?", options: ["Các thuật toán quét từ khóa", "Con người tự đọc", "Sách giáo khoa", "Tivi"], correct: 0 },
+        { lesson: "Bài 4", question: "Dữ liệu là gì?", options: ["Thông tin đã được số hóa để máy tính xử lý", "Là các con số", "Là các chữ cái", "Là video"], correct: 0 }
+    ],
+    2: [
+        { lesson: "Bài 6", question: "Đạo đức số nhắc nhở chúng ta điều gì?", options: ["Ứng xử văn minh và tôn trọng trên mạng", "Chỉ chơi game 24/24", "Tải mọi thứ bất hợp pháp", "Không cần học tin học"], correct: 0 },
+        { lesson: "Bài 12", question: "Để vẽ một hình lục giác (6 cạnh), góc xoay trong Scratch là?", options: ["60 độ", "90 độ", "120 độ", "45 độ"], correct: 0 },
+        { lesson: "Bài 6", question: "Việc bắt nạt qua mạng (Cyberbullying) là hành vi?", options: ["Vi phạm đạo đức và pháp luật", "Bình thường", "Giúp bạn tiến bộ", "Vui vẻ"], correct: 0 },
+        { lesson: "Bài 12", question: "Khối lệnh 'Pen down' có tác dụng gì?", options: ["Đặt bút xuống để bắt đầu vẽ", "Nhấc bút lên", "Xóa hình vẽ", "Thay đổi màu mực"], correct: 0 },
+        { lesson: "Bài 6", question: "Khi thấy bạn mình đăng tin sai sự thật, em nên?", options: ["Khuyên bạn xóa và không lan truyền", "Chia sẻ cho nhiều người biết", "Vào bình luận chửi bới", "Kệ bạn"], correct: 0 },
+        { lesson: "Bài 12", question: "Công thức tính góc xoay để vẽ đa giác đều n cạnh là?", options: ["360 / n", "180 / n", "n * 90", "360 - n"], correct: 0 }
+    ],
+    3: [
+        { lesson: "Bài 13", question: "Vòng lặp 'Mãi mãi' (Forever) sẽ dừng lại khi nào?", options: ["Khi người dùng nhấn nút Stop", "Sau 10 lần chạy", "Khi nhân vật chạm cạnh", "Khi biến đạt 100"], correct: 0 },
+        { lesson: "Bài 11", question: "Tối ưu hóa thuật toán vòng lặp giúp chương trình?", options: ["Gọn gàng và hiệu quả hơn", "Dài hơn", "Chạy chậm hơn", "Nhiều màu sắc hơn"], correct: 0 },
+        { lesson: "Bài 13", question: "Để tạo hiệu ứng nhân vật bước đi liên tục, ta dùng?", options: ["Vòng lặp và thay đổi Costume", "Chỉ dùng lệnh Move", "Chỉ dùng lệnh Say", "Lệnh Hide"], correct: 0 },
+        { lesson: "Bài 11", question: "Vòng lặp lồng nhau (vòng lặp trong vòng lặp) dùng để vẽ?", options: ["Các hình phức tạp như bông hoa", "Một đường thẳng", "Một điểm", "Không vẽ được gì"], correct: 0 },
+        { lesson: "Bài 13", question: "Lệnh 'Wait 0.1 seconds' trong vòng lặp giúp?", options: ["Làm chậm hành động để dễ quan sát", "Làm chương trình bị treo", "Tăng điểm", "Đổi màu"], correct: 0 },
+        { lesson: "Bài 11", question: "Nếu muốn lặp lại hành động cho đến khi nhân vật chạm vào 'Mouse pointer', ta dùng?", options: ["Repeat until <touching mouse-pointer ?>", "Repeat 10", "Forever", "If then"], correct: 0 }
+    ],
+    4: [
+        { lesson: "Bài 15", question: "Để điểm của 2 người chơi không lẫn nhau, ta cần?", options: ["Tạo 2 biến riêng biệt (Score1, Score2)", "Dùng chung 1 biến", "Xóa biến đi", "Không tính điểm"], correct: 0 },
+        { lesson: "Bài 10", question: "Thứ tự các lệnh trong cấu trúc tuần tự có quan trọng không?", options: ["Rất quan trọng, sai thứ tự sẽ sai kết quả", "Không quan trọng", "Chỉ quan trọng với âm thanh", "Chỉ quan trọng với màu sắc"], correct: 0 },
+        { lesson: "Bài 15", question: "Để thiết lập điểm về 0 khi bắt đầu game, em dùng?", options: ["set [Điểm] to 0", "change [Điểm] by 0", "show variable [Điểm]", "hide variable [Điểm]"], correct: 0 },
+        { lesson: "Bài 10", question: "Một thuật toán là gì?", options: ["Dãy các chỉ dẫn từng bước để giải quyết vấn đề", "Một bức tranh", "Một bài hát", "Một cái máy tính"], correct: 0 },
+        { lesson: "Bài 15", question: "Biến 'Toàn cục' (For all sprites) khác gì biến 'Địa phương'?", options: ["Tất cả nhân vật đều dùng được", "Chỉ 1 nhân vật dùng được", "Không thay đổi được", "Chỉ có số"], correct: 0 },
+        { lesson: "Bài 10", question: "Khi mô tả thuật toán, ta có thể dùng?", options: ["Ngôn ngữ tự nhiên hoặc sơ đồ khối", "Chỉ dùng tiếng Anh", "Chỉ dùng hình vẽ", "Chỉ dùng số"], correct: 0 }
+    ],
+    5: [
+        { lesson: "Bài 16", question: "Phân nhỏ bài toán giúp lập trình viên?", options: ["Giải quyết từng phần dễ dàng hơn", "Làm bài toán khó thêm", "Tốn thời gian hơn", "Không cần suy nghĩ"], correct: 0 },
+        { lesson: "Bài 14", question: "Cấu trúc 'Nếu không... thì' (If else) khác gì cấu trúc 'Nếu... thì'?", options: ["Có thêm lựa chọn khi điều kiện sai", "Chỉ dùng cho di chuyển", "Giống hệt nhau", "Dễ viết hơn"], correct: 0 },
+        { lesson: "Bài 16", question: "Việc sử dụng lại các khối lệnh đã có giúp?", options: ["Tiết kiệm thời gian và giảm lỗi", "Làm chương trình nặng hơn", "Làm rối chương trình", "Không có tác dụng"], correct: 0 },
+        { lesson: "Bài 14", question: "Trong Scratch, toán tử '>' (lớn hơn) dùng để?", options: ["So sánh hai giá trị", "Cộng hai số", "Xóa nhân vật", "Phát tin nhắn"], correct: 0 },
+        { lesson: "Bài 16", question: "Để tạo một trò chơi hoàn chỉnh, bước quan trọng nhất là?", options: ["Lên ý tưởng và thiết kế kịch bản", "Chọn màu cho nhân vật", "Đặt tên cho file", "Mua máy tính mới"], correct: 0 },
+        { lesson: "Bài 14", question: "Nếu <Điểm > 10> thì 'Thắng', ngược lại 'Tiếp tục'. Đây là cấu trúc gì?", options: ["Rẽ nhánh đầy đủ (If else)", "Vòng lặp", "Tuần tự", "Biến"], correct: 0 }
+    ]
+  }
+};
+
+const ENCOURAGEMENTS = {
+  perfect: ["Hệ thống tối ưu tuyệt đối!", "Hiệp sĩ Tin học bậc thầy!", "Kỹ năng xử lý dữ liệu hoàn hảo!", "Bạn đã đạt đến đỉnh cao công nghệ!", "Kết nối thần tốc, tư duy siêu việt!"],
+  good: ["Tiềm năng vô hạn!", "Gần như hoàn hảo rồi đó!", "Kỹ năng Cyber đang thăng hoa!", "Một chiến binh Tin học đầy triển vọng!", "Tư duy logic rất sắc bén!"],
+  average: ["Tiếp tục nạp thêm dữ liệu nhé!", "Đang khởi động hệ thống...", "Kỹ năng đang dần nâng cấp!", "Hãy luyện tập thêm để đột phá!", "Sắp đạt tới trình độ Chiến binh rồi!"],
+  poor: ["Hệ thống cần bảo trì!", "Đừng bỏ cuộc, hiệp sĩ ơi!", "Cập nhật lại kiến thức ngay thôi!", "Hãy thử lại, thất bại là mẹ thành công!", "Dữ liệu đang bị thiếu hụt, hãy đọc lại bài!"]
+};
+
+const App = () => {
+  const [viewMode, setViewMode] = useState('mobile'); 
+  const [gameState, setGameState] = useState('home');
+  const [selectedMode, setSelectedMode] = useState(null);
+  const [selectedMission, setSelectedMission] = useState(null);
+  const [currentQuestions, setCurrentQuestions] = useState([]);
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [score, setScore] = useState(0);
+  const [feedback, setFeedback] = useState(null);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [resultMsg, setResultMsg] = useState("");
+  
+  const audioContext = useRef(null);
+
+  const playSound = (type) => {
+    if (!soundEnabled || !window.AudioContext) return;
+    if (!audioContext.current) audioContext.current = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = audioContext.current;
+    if (ctx.state === 'suspended') ctx.resume();
+    
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    const now = ctx.currentTime;
+    
+    switch(type) {
+      case 'hover':
+        osc.frequency.setValueAtTime(1200, now); osc.frequency.exponentialRampToValueAtTime(1500, now + 0.05);
+        gain.gain.setValueAtTime(0.02, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.start(); osc.stop(now + 0.05); break;
+      case 'click':
+        osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(200, now + 0.1);
+        gain.gain.setValueAtTime(0.08, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        osc.start(); osc.stop(now + 0.1); break;
+      case 'correct':
+        osc.frequency.setValueAtTime(523.25, now); osc.frequency.exponentialRampToValueAtTime(1046.5, now + 0.2);
+        gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start(); osc.stop(now + 0.3); break;
+      case 'wrong':
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(220, now); osc.frequency.exponentialRampToValueAtTime(110, now + 0.2);
+        gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start(); osc.stop(now + 0.3); break;
+    }
+  };
+
+  const modes = [
+    { id: 'tan_binh', name: 'Tân binh', icon: <Rocket size={18}/>, color: 'from-cyan-500/20 to-blue-600/30 border-cyan-400/30 text-cyan-400', glow: 'shadow-[0_0_15px_rgba(34,211,238,0.15)]' },
+    { id: 'chien_binh', name: 'Chiến binh', icon: <Shield size={18}/>, color: 'from-blue-500/20 to-indigo-600/30 border-blue-400/30 text-blue-400', glow: 'shadow-[0_0_15px_rgba(59,130,246,0.15)]' },
+    { id: 'huyen_thoai', name: 'Huyền thoại', icon: <Trophy size={18}/>, color: 'from-purple-500/20 to-fuchsia-600/30 border-purple-400/30 text-purple-400', glow: 'shadow-[0_0_15px_rgba(168,85,247,0.15)]' }
+  ];
+
+  const missionIcons = [null, <BookOpen />, <Cpu />, <Globe />, <Palette />, <Lock />];
+
+  const handleStartMission = (modeId, missionNum) => {
+    playSound('click');
+    const data = MISSION_DATA[modeId][missionNum];
+    const processed = data.map(q => {
+      const correctText = q.options[q.correct];
+      const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+      return { ...q, options: shuffled, correctIdx: shuffled.indexOf(correctText) };
+    });
+    setCurrentQuestions(processed);
+    setSelectedMode(modes.find(m => m.id === modeId));
+    setSelectedMission(missionNum);
+    setCurrentIdx(0);
+    setScore(0);
+    setFeedback(null);
+    setGameState('playing');
+  };
+
+  const handleAnswer = (idx) => {
+    if (feedback) return;
+    const isCorrect = idx === currentQuestions[currentIdx].correctIdx;
+    if (isCorrect) {
+      playSound('correct');
+      setScore(s => s + 1);
+      setFeedback('correct');
+    } else {
+      playSound('wrong');
+      setFeedback('wrong');
+    }
+
+    setTimeout(() => {
+      if (currentIdx < currentQuestions.length - 1) {
+        setCurrentIdx(c => c + 1);
+        setFeedback(null);
+      } else {
+        showFinalResult();
+      }
+    }, 1200);
+  };
+
+  const showFinalResult = () => {
+    const ratio = score / currentQuestions.length;
+    let pool;
+    if (ratio === 1) pool = ENCOURAGEMENTS.perfect;
+    else if (ratio >= 0.7) pool = ENCOURAGEMENTS.good;
+    else if (ratio >= 0.4) pool = ENCOURAGEMENTS.average;
+    else pool = ENCOURAGEMENTS.poor;
+    
+    setResultMsg(pool[Math.floor(Math.random() * pool.length)]);
+    setGameState('result');
+  };
+
+  const getResultVisuals = () => {
+    const ratio = score / currentQuestions.length;
+    if (ratio === 1) return { icon: <Crown size={60} />, color: 'text-amber-400', shadow: 'rgba(251,191,36,0.5)', rank: 'Xếp hạng: S+' };
+    if (ratio >= 0.8) return { icon: <Flame size={60} />, color: 'text-orange-500', shadow: 'rgba(249,115,22,0.5)', rank: 'Xếp hạng: A' };
+    if (ratio >= 0.5) return { icon: <TargetIcon size={60} />, color: 'text-cyan-400', shadow: 'rgba(34,211,238,0.5)', rank: 'Xếp hạng: B' };
+    return { icon: <Medal size={60} />, color: 'text-slate-400', shadow: 'rgba(148,163,184,0.5)', rank: 'Xếp hạng: C' };
+  };
+
+  const q = currentQuestions[currentIdx];
+  const containerClass = viewMode === 'mobile' ? 'max-w-[360px]' : 'max-w-4xl';
+
+  return (
+    <div className="min-h-screen bg-[#020617] text-white font-sans transition-all duration-500 overflow-x-hidden relative flex flex-col items-center pt-2 pb-8">
+      
+      {/* Background Orbs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-blue-600/5 blur-[120px] rounded-full animate-pulse"></div>
+        <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] bg-purple-600/5 blur-[120px] rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
+      </div>
+
+      <div className={`relative z-10 w-full ${containerClass} mx-auto px-4 flex flex-col items-stretch`}>
+        
+        {/* COMPACT TOOLBAR */}
+        <div className="flex justify-between items-center mb-6 bg-white/[0.03] backdrop-blur-3xl p-3 rounded-[24px] border border-white/10 shadow-2xl">
+          <div className="flex items-center gap-3 pl-1">
+            <div className="bg-gradient-to-br from-cyan-400 to-blue-600 p-1.5 rounded-xl shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+               <Shield size={14} className="text-white" />
+            </div>
+            <div className="flex flex-col">
+              <h1 className="font-black text-[10px] tracking-widest uppercase leading-none text-white/90">Knight OS</h1>
+              <span className="text-[6px] font-black text-cyan-500/80 tracking-[0.4em]">SYSTEM SECURE</span>
+            </div>
+          </div>
+
+          <div className="flex gap-2 pr-1">
+            {gameState === 'home' && (
+              <div className="flex items-center bg-black/40 rounded-xl border border-white/5 p-1 mr-1">
+                <button onClick={() => { playSound('click'); setViewMode('mobile'); }} className={`p-2 rounded-lg transition-all ${viewMode === 'mobile' ? 'bg-cyan-500/20 text-cyan-400' : 'text-white/20 hover:text-white/40'}`}>
+                  <Smartphone size={14} />
+                </button>
+                <button onClick={() => { playSound('click'); setViewMode('desktop'); }} className={`p-2 rounded-lg transition-all ${viewMode === 'desktop' ? 'bg-cyan-500/20 text-cyan-400' : 'text-white/20 hover:text-white/40'}`}>
+                  <Monitor size={14} />
+                </button>
+              </div>
+            )}
+            <button onClick={() => setSoundEnabled(!soundEnabled)} className={`p-2 rounded-xl transition-all ${soundEnabled ? 'text-cyan-400 bg-cyan-400/10' : 'text-slate-600 bg-white/5'}`}>
+              {soundEnabled ? <Volume2 size={14} /> : <VolumeX size={14} />}
+            </button>
+            {gameState !== 'home' && (
+              <button onClick={() => { playSound('click'); setGameState('home'); }} className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-white/70 transition-all border border-white/5">
+                <Home size={14} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* MAIN AREA */}
+        <main className="flex-1 min-h-[520px] flex flex-col items-center">
+          {gameState === 'home' && (
+            <div className="w-full space-y-10 animate-in fade-in zoom-in-95 duration-500">
+              {/* TIÊU ĐỀ HIỆU ỨNG ÁNH SÁNG */}
+              <div className="text-center mt-6 select-none group relative">
+                <div className="absolute -inset-x-8 -top-8 -bottom-4 bg-cyan-500/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+                
+                <div className="relative">
+                  <div className="relative inline-block mb-1">
+                    <h2 className="text-4xl font-black tracking-tighter uppercase italic leading-none text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] relative z-10">
+                      Hiệp sĩ
+                    </h2>
+                    <h2 className="absolute inset-0 text-4xl font-black tracking-tighter uppercase italic leading-none text-white blur-[12px] opacity-20 pointer-events-none">
+                      Hiệp sĩ
+                    </h2>
+                  </div>
+                  <br />
+                  
+                  <div className="relative inline-block group-active:scale-95 transition-transform duration-200">
+                    <h2 className="absolute top-1 left-1 text-5xl font-black tracking-tighter uppercase italic leading-none text-black/60 blur-[4px]">
+                      Tin học 5
+                    </h2>
+                    <h2 className="text-5xl font-black tracking-tighter uppercase italic leading-none bg-gradient-to-br from-cyan-300 via-white to-blue-600 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(34,211,238,0.5)] relative z-10 after:content-['Tin_học_5'] after:absolute after:inset-0 after:bg-gradient-to-r after:from-transparent after:via-white/60 after:to-transparent after:bg-[length:200%_100%] after:animate-shimmer after:bg-clip-text after:text-transparent">
+                      Tin học 5
+                    </h2>
+                    <h2 className="absolute inset-0 text-5xl font-black tracking-tighter uppercase italic leading-none text-cyan-400 blur-[20px] opacity-30 animate-pulse pointer-events-none">
+                      Tin học 5
+                    </h2>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex justify-center gap-2">
+                   <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-cyan-500/50"></div>
+                   <div className="h-1 w-1 rounded-full bg-cyan-400 animate-ping"></div>
+                   <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-cyan-500/50"></div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 px-4 w-full">
+                {modes.map(m => (
+                  <button key={m.id} onClick={() => { setSelectedMode(m); setGameState('mission_select'); playSound('click'); }} className={`group relative w-full p-[1px] rounded-[24px] transition-all active:scale-[0.98] overflow-hidden`}>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                    <div className={`relative flex items-center justify-between p-4 rounded-[23px] bg-gradient-to-br ${m.color} backdrop-blur-2xl border border-white/10 ${m.glow}`}>
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-black/40 rounded-xl flex items-center justify-center border border-white/10 shadow-inner group-hover:scale-105 transition-all duration-300">
+                           {React.cloneElement(m.icon, { className: "text-white group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" })}
+                        </div>
+                        <div className="text-left">
+                          <h3 className="text-sm font-black uppercase tracking-tight text-white group-hover:text-cyan-300 transition-colors leading-none">{m.name}</h3>
+                          <span className="text-[6px] font-bold text-white/30 uppercase tracking-[0.2em] mt-1.5 block">Cyber Level_{m.id.substring(0,2)}</span>
+                        </div>
+                      </div>
+                      <div className="bg-white/5 p-1.5 rounded-lg border border-white/10">
+                        <ChevronRight size={14} className="text-white/40 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* MISSION SELECT */}
+          {gameState === 'mission_select' && selectedMode && (
+            <div className="w-full animate-in slide-in-from-right-8 duration-500 space-y-4">
+               <div className="flex items-center gap-4 mb-4 bg-white/5 p-5 rounded-[28px] border border-white/10 backdrop-blur-xl">
+                  <div className={`p-3.5 rounded-2xl border border-white/20 bg-gradient-to-br ${selectedMode.color} shadow-lg`}>
+                    {React.cloneElement(selectedMode.icon, { size: 20 })}
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-lg font-black uppercase tracking-tight">{selectedMode.name}</h2>
+                    <p className="text-cyan-500 text-[8px] font-black uppercase tracking-[0.2em] opacity-70">Chọn khu vực huấn luyện</p>
+                  </div>
+               </div>
+              
+              <div className={`grid gap-3 w-full ${viewMode === 'desktop' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                {[1, 2, 3, 4, 5].map(n => (
+                  <button key={n} onClick={() => handleStartMission(selectedMode.id, n)} className="group relative bg-white/5 p-4 rounded-[22px] border border-white/5 flex items-center justify-between hover:bg-white/[0.08] hover:border-cyan-500/30 transition-all active:scale-[0.98] overflow-hidden">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-black/40 rounded-2xl flex items-center justify-center text-cyan-400 group-hover:text-white group-hover:bg-cyan-500 transition-all duration-300 shadow-lg border border-white/5">
+                        {missionIcons[n]}
+                      </div>
+                      <div className="text-left">
+                        <span className="font-black text-sm block text-white/90 uppercase tracking-tight">Bài {n}</span>
+                        <span className="text-[7px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-cyan-500/70 transition-colors">Module_{n.toString().padStart(2, '0')}</span>
+                      </div>
+                    </div>
+                    <div className="mr-2 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+                       <Zap size={14} className="text-cyan-400 fill-cyan-400" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* PLAYING SCREEN */}
+          {gameState === 'playing' && q && (
+            <div className="w-full animate-in slide-in-from-bottom-8 duration-500 flex flex-col h-full items-center">
+              <div className="w-full flex justify-between items-center mb-6 px-1">
+                <div className="flex flex-col gap-2.5 flex-1 max-w-[60%]">
+                   <div className="text-cyan-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
+                      {q.lesson}
+                   </div>
+                   <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 p-[1px]">
+                      <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-500 ease-out shadow-[0_0_15px_rgba(34,211,238,0.4)] rounded-full" style={{width: `${((currentIdx + 1) / currentQuestions.length) * 100}%`}}></div>
+                   </div>
+                </div>
+                <div className="ml-4 flex flex-col items-end">
+                   <span className="text-[7px] font-black text-amber-500 uppercase tracking-widest mb-1.5">Score_Point</span>
+                   <div className="bg-white/5 px-4 py-2 rounded-xl font-black text-sm border border-white/10 backdrop-blur-md shadow-lg">
+                     <span className="text-amber-400">★ {score}</span> <span className="text-white/20 mx-1">/</span> <span>{currentQuestions.length}</span>
+                   </div>
+                </div>
+              </div>
+
+              {/* QUESTION CARD */}
+              <div className="w-full mb-8">
+                <div className="relative group w-full">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-[28px] blur-md opacity-40 group-hover:opacity-60 transition-opacity"></div>
+                  <div className="relative bg-[#0a0f25]/80 px-6 py-6 rounded-[28px] border border-white/10 backdrop-blur-3xl text-center shadow-xl">
+                     <h3 className="text-base font-bold text-white/95 leading-relaxed tracking-tight">{q.question}</h3>
+                  </div>
+                </div>
+              </div>
+
+              {/* OPTIONS - CĂN LỀ TRÁI */}
+              <div className={`w-full flex flex-col gap-3 ${viewMode === 'desktop' ? 'px-12' : 'px-1'}`}>
+                {q.options.map((opt, i) => (
+                  <button
+                    key={i}
+                    disabled={!!feedback}
+                    onClick={() => handleAnswer(i)}
+                    className={`relative w-full p-4 rounded-[22px] border font-medium transition-all flex items-center gap-4 active:scale-[0.99] group overflow-hidden text-left
+                      ${feedback && i === q.correctIdx ? 'bg-green-500/20 border-green-500 shadow-[0_0_20px_rgba(34,197,94,0.3)]' : 
+                        feedback && i !== q.correctIdx ? 'opacity-20 grayscale border-white/5' : 
+                        'bg-white/5 border-white/10 hover:border-cyan-500/50 hover:bg-white/[0.08] hover:translate-x-1'}
+                    `}
+                  >
+                    <div className={`w-8 h-8 shrink-0 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center text-[11px] font-black transition-all duration-300
+                      ${feedback && i === q.correctIdx ? 'bg-green-500 text-white shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'text-slate-400 group-hover:text-cyan-400 group-hover:border-cyan-500/50'}
+                    `}>
+                      {String.fromCharCode(65 + i)}
+                    </div>
+                    <span className="text-[14px] leading-snug text-white/80 font-semibold flex-1">{opt}</span>
+                    {feedback && i === q.correctIdx && (
+                      <div className="animate-in zoom-in duration-300 text-green-400">
+                        <Sparkles size={16} />
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+              
+              <div className="mt-8 h-6 flex justify-center overflow-hidden">
+                {feedback && (
+                  <div className={`flex items-center gap-3 font-black text-[10px] uppercase tracking-[0.5em] animate-in slide-in-from-top-4 duration-300 ${feedback === 'correct' ? 'text-green-400' : 'text-red-500'}`}>
+                    <Zap size={12} className={feedback === 'correct' ? 'animate-bounce' : 'animate-shake'} />
+                    {feedback === 'correct' ? 'TỐI ƯU DỮ LIỆU' : 'LỖI HỆ THỐNG'}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* RESULT SCREEN */}
+          {gameState === 'result' && (
+            <div className="w-full flex flex-col items-center justify-center h-full py-4 animate-in zoom-in-95 duration-700 relative">
+              <div className="relative w-full max-w-[380px]">
+                <div className="absolute -inset-10 bg-gradient-to-br from-cyan-500/10 via-purple-500/10 to-blue-500/10 blur-[80px] rounded-full opacity-60"></div>
+                <div className="relative bg-white/[0.02] border border-white/10 backdrop-blur-3xl rounded-[40px] p-8 text-center shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)]">
+                  <div className="mt-8 mb-6 relative inline-block">
+                    <div className="absolute inset-0 scale-150 border border-white/5 rounded-full animate-ping opacity-20"></div>
+                    <div className={`relative z-10 p-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-inner ${getResultVisuals().color}`}>
+                      {React.cloneElement(getResultVisuals().icon, { className: `drop-shadow-[0_0_20px_${getResultVisuals().shadow}]` })}
+                    </div>
+                  </div>
+                  <h2 className="text-4xl font-black italic tracking-tighter uppercase mb-2">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/40">KẾT THÚC</span>
+                  </h2>
+                  <div className="mb-6 flex flex-col gap-1 items-center">
+                    <p className="text-cyan-400 font-black text-[12px] uppercase tracking-widest">{getResultVisuals().rank}</p>
+                    <p className="text-white/60 font-medium text-sm italic px-4 max-w-[280px]">{resultMsg}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 mb-8">
+                    <div className="bg-black/30 rounded-[24px] p-4 border border-white/5 flex flex-col items-center">
+                      <span className="text-[7px] font-black text-white/30 uppercase tracking-widest mb-1">Dữ liệu đúng</span>
+                      <span className="text-2xl font-black text-white">{score}<span className="text-xs text-white/30 ml-1">/{currentQuestions.length}</span></span>
+                    </div>
+                    <div className="bg-black/30 rounded-[24px] p-4 border border-white/5 flex flex-col items-center">
+                      <span className="text-[7px] font-black text-white/30 uppercase tracking-widest mb-1">Hiệu suất</span>
+                      <span className="text-2xl font-black text-cyan-400">{Math.round((score/currentQuestions.length)*100)}%</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <button onClick={() => { playSound('click'); handleStartMission(selectedMode.id, selectedMission); }} className="group relative w-full overflow-hidden py-4 rounded-2xl bg-white/5 border border-white/10 font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:bg-white/10 active:scale-95 flex items-center justify-center gap-2">
+                      <RotateCcw size={14} className="group-hover:rotate-[-45deg] transition-transform" /> Khởi động lại
+                    </button>
+                    <button 
+                      onClick={() => {
+                        playSound('click');
+                        const nextNum = selectedMission + 1;
+                        if (MISSION_DATA[selectedMode.id][nextNum]) handleStartMission(selectedMode.id, nextNum);
+                        else setGameState('mission_select');
+                      }}
+                      className="relative w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_8px_20px_-4px_rgba(6,182,212,0.5)] transition-all active:scale-95 group flex items-center justify-center gap-2 overflow-hidden"
+                    >
+                      <span className="relative z-10">Tiếp tục hành trình</span>
+                      <ArrowRight size={14} className="relative z-10 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+
+        <footer className="mt-auto flex justify-between items-center text-[7px] font-black text-slate-700 tracking-[0.4em] uppercase border-t border-white/5 pt-6 opacity-40">
+          <div className="flex items-center gap-2.5">
+             <div className="w-1.5 h-1.5 rounded-full bg-slate-800 animate-pulse"></div>
+             <span>KNIGHT_CORE // V4.1</span>
+          </div>
+          <div className="flex gap-4">
+            <span>SECURE_DATA</span>
+            <span>CYBER_GLASS_SYSTEM</span>
+          </div>
+        </footer>
+      </div>
+
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .animate-shimmer {
+          animation: shimmer 3s infinite linear;
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-2px); }
+          75% { transform: translateX(2px); }
+        }
+        .animate-shake {
+          animation: shake 0.2s ease-in-out infinite;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default App;
